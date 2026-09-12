@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PadelHub - Reserva de Canchas</title>
+  <style>
+    /* ==========================================
+       VARIABLES Y ESTILOS DE DISEÑO (MOBBIN INSPIRED)
+       ========================================== */
+    :root {
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --primary: #15803d; 
+      --primary-hover: #166534;
+      --accent: #ea580c; /* Naranja deportivo accesible para CTAs principales */
+      --accent-hover: #c2410c;
+      --border-color: #cbd5e1;
+      --focus-ring: #0284c7;
+      --badge-indoor-bg: #e0e7ff;
+      --badge-indoor-text: #3730a3;
+      --badge-outdoor-bg: #fef3c7;
+      --badge-outdoor-text: #92400e;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    /* Accesibilidad */
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    /* Layout Responsive Container */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    /* Header Navegación Moderno */
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 2px solid var(--border-color);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .nav-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand {
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: var(--primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-nav {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* Tipografía Bold Mobbin Style */
+    .hero-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      text-transform: uppercase;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    /* Botones y CTAs */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-accent {
+      background-color: var(--accent);
+      color: #ffffff;
+    }
+    .btn-accent:hover { background-color: var(--accent-hover); }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #ffffff;
+    }
+    .btn-primary:hover { background-color: var(--primary-hover); }
+
+    .btn-secondary {
+      background-color: #ffffff;
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+    .btn-secondary:hover { background-color: #e2e8f0; }
+
+    .btn-logout {
+      background-color: #fef2f2;
+      color: #dc2626;
+      border-color: #fca5a5;
+    }
+    .btn-logout:hover { background-color: #fee2e2; }
+
+    .btn-filter {
+      background-color: #ffffff;
+      border: 2px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 14px;
+      font-size: 0.85rem;
+    }
+    .btn-filter.active {
+      background-color: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .hidden { display: none !important; }
+
+    /* Form Controles */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 800;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      background-color: #ffffff;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-indoor { background-color: var(--badge-indoor-bg); color: var(--badge-indoor-text); }
+    .badge-outdoor { background-color: var(--badge-outdoor-bg); color: var(--badge-outdoor-text); }
+    .badge-parking { background-color: #f1f5f9; color: #334155; border: 1px solid var(--border-color); }
+
+    /* Layout de Lista de Canchas (Grid Adaptable) */
+    .court-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 16px;
+    }
+
+    .court-item {
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      background-color: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .court-item:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .court-item.selected-flash {
+      animation: flashLight 0.4s ease-in-out;
+      border-color: var(--primary);
+      background-color: #f0fdf4;
+    }
+    @keyframes flashLight {
+      0% { background-color: #bbf7d0; }
+      100% { background-color: #f0fdf4; }
+    }
+
+    /* Banners */
+    .frequent-banner {
+      background-color: #e0f2fe;
+      border: 2px solid #0284c7;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .active-reservation-banner {
+      background-color: #dcfce7;
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    /* Mapa Simulado */
+    .map-simulated {
+      width: 100%;
+      height: 180px;
+      background-color: #e2e8f0;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      border: 2px dashed var(--border-color);
+      margin: 16px 0;
+      text-align: center;
+      padding: 10px;
+    }
+
+    /* Grid de Horarios Dinámicos */
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .time-slot {
+      padding: 14px 10px;
+      text-align: center;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      background-color: #fff;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    .time-slot:hover {
+      border-color: var(--primary);
+      background-color: #f8fafc;
+    }
+    .time-slot.selected {
+      background-color: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Modales Coach Marks */
+    .coach-mark-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.7);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .coach-mark-box {
+      background: #ffffff;
+      border: 3px solid var(--primary);
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: var(--shadow-md);
+    }
+
+    .rating-stars { color: #d97706; font-weight: 800; }
+
+    .voucher-code {
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
+      letter-spacing: 4px;
+      font-weight: 900;
+      background-color: #f1f5f9;
+      border: 3px dashed var(--primary);
+      padding: 16px;
+      text-align: center;
+      border-radius: 8px;
+      margin: 20px 0;
+      color: var(--primary);
+    }
+
+    /* Adjustes para Celulares (Media Queries) */
+    @media (max-width: 640px) {
+      .nav-wrapper { flex-direction: column; align-items: flex-start; }
+      .user-nav { width: 100%; justify-content: space-between; margin-top: 8px; }
+      .btn { width: 100%; }
+      .court-grid { grid-template-columns: 1fr; }
+      .time-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Encabezado con Cierre de Sesión -->
+  <header>
+    <div class="nav-wrapper">
+      <a href="#" class="brand" onclick="goHome()">
+        🎾 PadelHub
+      </a>
+      <div id="nav-user-info" class="user-nav hidden">
+        <span id="nav-welcome" style="font-weight: 800;"></span>
+        <div style="display: flex; gap: 8px; width: auto;" class="mobile-stack">
+          <button class="btn btn-secondary" onclick="showProfile()">Perfil / Historial</button>
+          <button class="btn btn-logout" onclick="logout()">Cerrar Sesión</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- PANTALLA 1: LOGIN -->
+    <section id="screen-login" class="card" style="max-width: 500px; margin: 40px auto;">
+      <h1 class="hero-title" style="font-size: 2rem;">INGRESÁ A PADELHUB</h1>
+      <p style="color: var(--text-muted); margin-bottom: 24px;">Conectate con las mejores canchas de la red en segundos.</p>
+      
+      <form id="form-login" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="login-name">Nombre completo</label>
+          <input type="text" id="login-name" class="form-control" placeholder="Ej: Lucas Gómez" required>
+        </div>
+        <div class="form-group">
+          <label for="login-email">Correo Electrónico (Tu ID)</label>
+          <input type="email" id="login-email" class="form-control" placeholder="ejemplo@mail.com" required>
+        </div>
+        <button type="submit" class="btn btn-accent" style="width: 100%; margin-top: 8px;">Ingresar →</button>
+      </form>
+    </section>
+
+    <!-- PANTALLA 2: PRINCIPAL -->
+    <section id="screen-home" class="hidden">
+      
+      <div class="card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border: none;">
+        <span style="color: #4ade80; font-weight: 900; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">PadelHub Franquicia</span>
+        <h1 id="welcome-heading" class="hero-title" style="color: white; margin-top: 4px;"></h1>
+        <p style="font-size: 1.2rem; font-weight: 700; color: #cbd5e1;">¿Dónde querés jugar hoy?</p>
+      </div>
+
+      <!-- Banner Reserva Activa -->
+      <div id="banner-active-reservation" class="active-reservation-banner hidden">
+        <h3 style="color: #166534; font-weight: 900;">🎾 TENÉS UNA RESERVA ACTIVA</h3>
+        <p id="active-reservation-text" style="margin: 8px 0;"></p>
+        <button class="btn btn-primary" onclick="showProfile()">Ver Detalle en Mi Perfil</button>
+      </div>
+
+      <!-- Banner Usuario Frecuente -->
+      <div id="banner-frequent-user" class="frequent-banner hidden">
+        <h3 style="font-weight: 900; color: #0369a1;">⚡ RESERVA RÁPIDA - USUARIO FRECUENTE</h3>
+        <p id="frequent-user-text" style="margin: 6px 0;"></p>
+        <button id="btn-quick-book" class="btn btn-primary" style="margin-top: 8px;">Volver a reservar esta cancha →</button>
+      </div>
+
+      <!-- Filtros de Búsqueda -->
+      <div class="card">
+        <h2 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 16px;">FILTRAR CANCHAS</h2>
+        
+        <!-- Paso 1 -->
+        <div class="form-group">
+          <label for="filter-address">Paso 1: Dirección o Barrio</label>
+          <input type="text" id="filter-address" class="form-control" placeholder="Ej: Nueva Córdoba, Palermo, Belgrano..." oninput="applyFilters()">
+        </div>
+
+        <!-- Paso 2 -->
+        <div class="form-group">
+          <label>Paso 2: Tipo de Cancha</label>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-filter active" id="filter-type-ambas" onclick="setFilterType('ambas')">Todas / Ambas</button>
+            <button type="button" class="btn btn-filter" id="filter-type-techada" onclick="setFilterType('techada')">🏢 Techadas</button>
+            <button type="button" class="btn btn-filter" id="filter-type-aire_libre" onclick="setFilterType('aire_libre')">☀️ Al aire libre</button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 12px;">
+          <button class="btn btn-secondary" style="font-size: 0.85rem; color: #dc2626;" onclick="resetFilters()">🗑️ Borrar filtros</button>
+        </div>
+      </div>
+
+      <h2 style="font-size: 1.5rem; font-weight: 900; text-transform: uppercase;">Canchas disponibles</h2>
+      <div id="court-list-container" class="court-grid"></div>
+    </section>
+
+    <!-- PANTALLA 3: DETALLE Y HORARIOS DINÁMICOS -->
+    <section id="screen-detail" class="hidden">
+      <div style="margin-bottom: 16px;">
+        <button class="btn btn-secondary" onclick="backToHomePreservingFilters()">← Seguir buscando</button>
+      </div>
+
+      <div class="card">
+        <h1 id="detail-name" class="hero-title"></h1>
+        <p id="detail-address" style="color: var(--text-muted); font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"></p>
+        
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;" id="detail-badges"></div>
+
+        <div class="map-simulated">
+          <p style="font-size: 1.2rem; font-weight: 800;">📍 UBICACIÓN EN MAPA</p>
+          <p id="detail-map-text"></p>
+        </div>
+
+        <h3 style="font-weight: 900; margin-top: 16px;">DESCRIPCIÓN DEL PREDIO</h3>
+        <p id="detail-description" style="color: var(--text-muted); margin-top: 4px; margin-bottom: 16px;"></p>
+
+        <h3 style="font-weight: 900;">OPINIONES DE JUGADORES</h3>
+        <div id="detail-reviews-container" style="margin-bottom: 20px;"></div>
+
+        <hr style="margin: 24px 0; border: 0; border-top: 2px solid var(--border-color);">
+
+        <h2 style="font-weight: 900; text-transform: uppercase;">SELECCIONÁ DÍA Y DURACIÓN</h2>
+        <div style="display: flex; gap: 16px; margin: 16px 0; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 160px;">
+            <label for="booking-date" style="font-weight: 800; font-size: 0.9rem;">DÍA DE RESERVA</label>
+            <input type="date" id="booking-date" class="form-control" onchange="renderTimeSlots()">
+          </div>
+          <div style="flex: 1; min-width: 160px;">
+            <label for="booking-duration" style="font-weight: 800; font-size: 0.9rem;">DURACIÓN DE JUEGO</label>
+            <select id="booking-duration" class="form-control" onchange="renderTimeSlots()">
+              <option value="1">1 Hora de uso</option>
+              <option value="2">2 Horas de uso</option>
+            </select>
+          </div>
+        </div>
+
+        <h3 style="font-weight: 900; margin-top: 16px;">HORARIOS DISPONIBLES</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">
+          * Los bloques se calculan automáticamente según la duración elegida.
+        </p>
+        <div id="time-slots-container" class="time-grid"></div>
+
+        <div style="margin-top: 28px; display: flex; justify-content: space-between; align-items: center; background-color: #f1f5f9; padding: 20px; border-radius: 8px; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <span style="font-weight: 700; text-transform: uppercase; font-size: 0.9rem;">Precio Total Estimado:</span>
+            <div id="detail-total-price" style="font-size: 2rem; font-weight: 900; color: var(--primary);">$0</div>
+          </div>
+          <button class="btn btn-accent" style="padding: 14px 28px;" onclick="proceedToSummary()">Continuar →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANTALLA 4: RESUMEN -->
+    <section id="screen-summary" class="hidden">
+      <div class="card" style="max-width: 650px; margin: 0 auto;">
+        <h2 class="hero-title" style="font-size: 1.8rem;">RESUMEN DE RESERVA</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Confirmá que todos los datos sean correctos.</p>
+
+        <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 2px solid var(--border-color); margin-bottom: 24px; display: flex; flex-direction: column; gap: 10px;">
+          <p><strong>Cancha:</strong> <span id="sum-court-name"></span></p>
+          <p><strong>Ubicación:</strong> <span id="sum-court-address"></span></p>
+          <p><strong>Fecha:</strong> <span id="sum-date"></span></p>
+          <p><strong>Horario / Bloque:</strong> <strong id="sum-time" style="color: var(--primary);"></strong></p>
+          <p><strong>Duración Elegida:</strong> <span id="sum-duration"></span></p>
+          <p><strong>Total a abonar:</strong> <strong id="sum-price" style="font-size: 1.4rem; color: var(--primary);"></strong></p>
+        </div>
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" style="flex: 1;" onclick="showScreen('screen-detail')">Modificar</button>
+          <button class="btn btn-accent" style="flex: 2;" onclick="confirmBooking()">Confirmar Reserva →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANTALLA 5: CONFIRMACIÓN Y COMPROBANTE -->
+    <section id="screen-confirmation" class="hidden">
+      <div class="card" style="text-align: center; max-width: 650px; margin: 0 auto;">
+        <h2 class="hero-title" style="color: var(--primary); font-size: 2rem;">¡RESERVA CONFIRMADA!</h2>
+        <p style="font-weight: 700; color: var(--text-muted);">Presentá tu código al ingresar al predio:</p>
+
+        <div id="voucher-code-display" class="voucher-code"></div>
+
+        <div style="text-align: left; background: #f8fafc; padding: 20px; border-radius: 8px; border: 2px solid var(--border-color); margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;">
+          <h3 style="font-weight: 900; margin-bottom: 4px;">DATOS DE ACCESO</h3>
+          <p><strong>Jugador:</strong> <span id="conf-user"></span></p>
+          <p><strong>Cancha:</strong> <span id="conf-court"></span></p>
+          <p><strong>Ubicación:</strong> <span id="conf-address"></span></p>
+          <p><strong>Día y Turno:</strong> <span id="conf-datetime"></span></p>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+          <button class="btn btn-secondary" onclick="shareWhatsApp()">📱 Compartir WhatsApp</button>
+          <button class="btn btn-secondary" onclick="copyVoucherInfo()">📋 Copiar Datos</button>
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; padding: 14px;" onclick="goHome()">Ir a la Página Principal</button>
+      </div>
+    </section>
+
+    <!-- PANTALLA 6: PERFIL -->
+    <section id="screen-profile" class="hidden">
+      <div style="margin-bottom: 16px;">
+        <button class="btn btn-secondary" onclick="goHome()">← Volver al Home</button>
+      </div>
+
+      <div class="card">
+        <h2 class="hero-title" style="font-size: 1.8rem;">MI PERFIL</h2>
+        <form onsubmit="saveUserProfile(event)" style="margin-top: 16px;">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" id="profile-name" class="form-control" readonly style="background-color: #f1f5f9;">
+          </div>
+          <div class="form-group">
+            <label>Email (ID)</label>
+            <input type="email" id="profile-email" class="form-control" readonly style="background-color: #f1f5f9;">
+          </div>
+          <div class="form-group">
+            <label for="profile-phone">Número de Celular</label>
+            <input type="tel" id="profile-phone" class="form-control" placeholder="Ej: +54 9 351 1234567">
+          </div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button type="submit" class="btn btn-primary">Guardar Datos</button>
+            <button type="button" class="btn btn-logout" onclick="logout()">Cerrar Sesión Activa</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 style="font-weight: 900; text-transform: uppercase;">HISTORIAL DE RESERVAS</h2>
+        <div id="history-list-container" style="margin-top: 16px;"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- MODAL COACH MARKS -->
+  <div id="coach-mark-modal" class="coach-mark-backdrop hidden">
+    <div class="coach-mark-box">
+      <div style="display: flex; align-items: center; gap: 8px; color: var(--primary); font-size: 1.2rem; font-weight: 900; margin-bottom: 12px;">
+        <span>💡</span>
+        <span id="coach-title">INFORMACIÓN</span>
+      </div>
+      <p id="coach-text" style="margin-bottom: 20px; font-size: 1.05rem; color: var(--text-main);"></p>
+      <button class="btn btn-primary" style="width: 100%;" onclick="closeCoachMark()">Entendido →</button>
+    </div>
+  </div>
+
+  <script>
+    /* ------------------------------------------
+       BASE DE DATOS SIMULADA
+       ------------------------------------------ */
+    const COURTS_DATA = [
+      {
+        id: 1,
+        name: "PadelHub Nueva Córdoba",
+        address: "Av. Hipólito Yrigoyen 450, Nueva Córdoba, Córdoba",
+        neighborhood: "Nueva Córdoba",
+        city: "Córdoba",
+        type: "techada",
+        parking: "pago",
+        pricePerHour: 14000,
+        description: "Predio premium con 4 canchas de césped sintético súper azul e iluminación profesional LED.",
+        rating: 4.8,
+        reviews: [
+          { user: "Martín L.", rating: 5, comment: "Excelente la alfombra y la atención en el buffet." },
+          { user: "Sofía G.", rating: 4, comment: "Muy buenas instalaciones." }
+        ]
+      },
+      {
+        id: 2,
+        name: "PadelHub Palermo Hollywood",
+        address: "Humboldt 1940, Palermo, CABA",
+        neighborhood: "Palermo",
+        city: "CABA",
+        type: "aire_libre",
+        parking: "ninguno",
+        pricePerHour: 16000,
+        description: "Canchas panorámicas al aire libre rodeadas de áreas verdes. Excelente ventilación.",
+        rating: 4.6,
+        reviews: [
+          { user: "Gonzalo P.", rating: 5, comment: "Jugar al aire libre acá de noche es lo mejor." }
+        ]
+      },
+      {
+        id: 3,
+        name: "PadelHub Belgrano R",
+        address: "Av. Cramer 2200, Belgrano, CABA",
+        neighborhood: "Belgrano",
+        city: "CABA",
+        type: "techada",
+        parking: "gratis",
+        pricePerHour: 15500,
+        description: "Nave techada de alta tecnología con aislamiento térmico y acústico. Estacionamiento gratuito.",
+        rating: 4.9,
+        reviews: [
+          { user: "Camila R.", rating: 5, comment: "10/10. Estacionás gratis adentro." }
+        ]
+      },
+      {
+        id: 4,
+        name: "PadelHub Villa Belgrano",
+        address: "Av. Recta Martinolli 6800, Villa Belgrano, Córdoba",
+        neighborhood: "Villa Belgrano",
+        city: "Córdoba",
+        type: "aire_libre",
+        parking: "pago",
+        pricePerHour: 13500,
+        description: "Complejo al aire libre con blindex homologado internacionalmente.",
+        rating: 4.7,
+        reviews: [
+          { user: "Facundo M.", rating: 5, comment: "Canchas rápidas en excelente estado." }
+        ]
+      }
+    ];
+
+    /* ------------------------------------------
+       ESTADO DE LA APLICACIÓN
+       ------------------------------------------ */
+    let currentUser = null;
+    let filterState = { address: "", type: "ambas" };
+    let selectedCourt = null;
+    let selectedBookingState = { date: "", time: "", duration: 1, totalPrice: 0 };
+    let activeCoachMarkCallback = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('booking-date').value = today;
+      document.getElementById('booking-date').min = today;
+
+      const savedUser = localStorage.getItem('padelhub_user');
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        onUserLoggedIn();
+      } else {
+        showScreen('screen-login');
+      }
+    });
+
+    /* ------------------------------------------
+       SESIÓN DE USUARIO (LOGIN & LOGOUT)
+       ------------------------------------------ */
+    function handleLogin(event) {
+      event.preventDefault();
+      const name = document.getElementById('login-name').value.trim();
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+
+      if (!name || !email) return;
+
+      let usersDB = JSON.parse(localStorage.getItem('padelhub_users_db') || '{}');
+      if (usersDB[email]) {
+        currentUser = usersDB[email];
+        currentUser.name = name;
+      } else {
+        currentUser = { name: name, email: email, phone: "", bookings: [] };
+      }
+      
+      usersDB[email] = currentUser;
+      localStorage.setItem('padelhub_users_db', JSON.stringify(usersDB));
+      localStorage.setItem('padelhub_user', JSON.stringify(currentUser));
+
+      onUserLoggedIn();
+    }
+
+    function logout() {
+      localStorage.removeItem('padelhub_user');
+      currentUser = null;
+      document.getElementById('nav-user-info').classList.add('hidden');
+      document.getElementById('login-name').value = "";
+      document.getElementById('login-email').value = "";
+      showScreen('screen-login');
+    }
+
+    function onUserLoggedIn() {
+      document.getElementById('nav-user-info').classList.remove('hidden');
+      document.getElementById('nav-welcome').textContent = `Hola, ${currentUser.name}`;
+      document.getElementById('welcome-heading').textContent = `¡HOLA, ${currentUser.name.toUpperCase()}!`;
+
+      checkFrequentUserStatus();
+      checkActiveReservations();
+
+      showScreen('screen-home');
+      applyFilters();
+
+      if (!localStorage.getItem('cm_step1_seen')) {
+        showCoachMark(
+          "Paso 1: Filtrar Canchas", 
+          "Podés escribir tu dirección o barrio en el buscador (Paso 1) para encontrar las canchas más cercanas, y usar los botones (Paso 2) para filtrar por tipo de cancha.",
+          () => { localStorage.setItem('cm_step1_seen', 'true'); }
+        );
+      }
+    }
+
+    function checkFrequentUserStatus() {
+      const banner = document.getElementById('banner-frequent-user');
+      if (currentUser.bookings && currentUser.bookings.length > 0) {
+        const lastBooking = currentUser.bookings[currentUser.bookings.length - 1];
+        const court = COURTS_DATA.find(c => c.id === lastBooking.courtId);
+        
+        if (court) {
+          banner.classList.remove('hidden');
+          document.getElementById('frequent-user-text').textContent = 
+            `Tu última reserva fue en "${court.name}". ¿Querés repetir la reserva?`;
+          document.getElementById('btn-quick-book').onclick = () => selectCourt(court.id);
+        }
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    function checkActiveReservations() {
+      const banner = document.getElementById('banner-active-reservation');
+      if (currentUser.bookings && currentUser.bookings.length > 0) {
+        const last = currentUser.bookings[currentUser.bookings.length - 1];
+        banner.classList.remove('hidden');
+        document.getElementById('active-reservation-text').innerHTML = 
+          `<strong>${last.courtName}</strong> - Día ${last.date} | Turno: ${last.time} (Código: ${last.code})`;
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    /* ------------------------------------------
+       NAVEGACIÓN
+       ------------------------------------------ */
+    function showScreen(screenId) {
+      const screens = ['screen-login', 'screen-home', 'screen-detail', 'screen-summary', 'screen-confirmation', 'screen-profile'];
+      screens.forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById(screenId).classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+
+    function goHome() {
+      if (!currentUser) {
+        showScreen('screen-login');
+        return;
+      }
+      checkActiveReservations();
+      showScreen('screen-home');
+    }
+
+    function backToHomePreservingFilters() {
+      showScreen('screen-home');
+    }
+
+    /* ------------------------------------------
+       FILTROS
+       ------------------------------------------ */
+    function setFilterType(type) {
+      filterState.type = type;
+      document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`filter-type-${type}`).classList.add('active');
+      applyFilters();
+    }
+
+    function resetFilters() {
+      filterState.address = "";
+      filterState.type = "ambas";
+      document.getElementById('filter-address').value = "";
+      document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('filter-type-ambas').classList.add('active');
+      applyFilters();
+    }
+
+    function applyFilters() {
+      filterState.address = document.getElementById('filter-address').value.toLowerCase().trim();
+
+      const filtered = COURTS_DATA.filter(court => {
+        const matchesAddress = court.name.toLowerCase().includes(filterState.address) ||
+                               court.address.toLowerCase().includes(filterState.address) ||
+                               court.neighborhood.toLowerCase().includes(filterState.address);
+
+        let matchesType = true;
+        if (filterState.type !== 'ambas') {
+          matchesType = (court.type === filterState.type);
+        }
+
+        return matchesAddress && matchesType;
+      });
+
+      renderCourtList(filtered);
+    }
+
+    function renderCourtList(courts) {
+      const container = document.getElementById('court-list-container');
+      container.innerHTML = "";
+
+      if (courts.length === 0) {
+        container.innerHTML = `<div class="card" style="grid-column: 1/-1;"><p style="text-align:center;">No se encontraron canchas con esos datos.</p></div>`;
+        return;
+      }
+
+      courts.forEach(court => {
+        const item = document.createElement('div');
+        item.className = 'court-item';
+        item.id = `court-item-${court.id}`;
+        
+        let parkingText = "";
+        if (court.parking === 'pago') parkingText = "🅿️ Estacionamiento PAGO";
+        else if (court.parking === 'gratis') parkingText = "🅿️ Estacionamiento GRATUITO";
+        else parkingText = "🚫 Sin estacionamiento propio";
+
+        const typeBadge = court.type === 'techada' 
+          ? `<span class="badge badge-indoor">🏢 Techada</span>` 
+          : `<span class="badge badge-outdoor">☀️ Al aire libre</span>`;
+
+        item.innerHTML = `
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+              <h3 style="font-size: 1.2rem; font-weight: 900;">${court.name}</h3>
+              <span class="rating-stars">★ ${court.rating}</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 6px 0 12px 0;">📍 ${court.address}</p>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;">
+              ${typeBadge}
+              <span class="badge badge-parking">${parkingText}</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 8px;">
+            <span style="font-weight: 900; color: var(--primary); font-size: 1.1rem;">$${court.pricePerHour.toLocaleString()} / hs</span>
+            <span style="font-weight: 800; color: var(--accent); font-size: 0.85rem; text-transform: uppercase;">Reservar →</span>
+          </div>
+        `;
+
+        item.onclick = () => selectCourt(court.id);
+        container.appendChild(item);
+      });
+    }
+
+    /* ------------------------------------------
+       SELECCIÓN Y HORARIOS DINÁMICOS (1h vs 2h)
+       ------------------------------------------ */
+    function selectCourt(courtId) {
+      const elem = document.getElementById(`court-item-${courtId}`);
+      if (elem) elem.classList.add('selected-flash');
+
+      setTimeout(() => {
+        if (elem) elem.classList.remove('selected-flash');
+        selectedCourt = COURTS_DATA.find(c => c.id === courtId);
+        openCourtDetail();
+      }, 300);
+    }
+
+    function openCourtDetail() {
+      if (!selectedCourt) return;
+
+      document.getElementById('detail-name').textContent = selectedCourt.name;
+      document.getElementById('detail-address').textContent = `📍 ${selectedCourt.address}`;
+      document.getElementById('detail-map-text').textContent = `Ubicación satelital disponible para: ${selectedCourt.address}`;
+      document.getElementById('detail-description').textContent = selectedCourt.description;
+
+      const badgesContainer = document.getElementById('detail-badges');
+      let parkingText = "";
+      if (selectedCourt.parking === 'pago') parkingText = "🅿️ Estacionamiento PAGO en el predio";
+      else if (selectedCourt.parking === 'gratis') parkingText = "🅿️ Estacionamiento GRATIS incluido";
+      else parkingText = "🚫 Sin estacionamiento propio";
+
+      badgesContainer.innerHTML = `
+        <span class="badge ${selectedCourt.type === 'techada' ? 'badge-indoor' : 'badge-outdoor'}">
+          ${selectedCourt.type === 'techada' ? '🏢 Techada' : '☀️ Al Aire Libre'}
+        </span>
+        <span class="badge badge-parking">${parkingText}</span>
+        <span class="badge" style="background: #fef3c7; color: #92400e;">★ ${selectedCourt.rating} Valoración</span>
+      `;
+
+      const revContainer = document.getElementById('detail-reviews-container');
+      revContainer.innerHTML = selectedCourt.reviews.map(r => `
+        <div style="background: #f8fafc; padding: 10px 14px; border-radius: 8px; margin-top: 8px; border-left: 4px solid var(--primary);">
+          <strong>${r.user}</strong> <span class="rating-stars">(${r.rating} ★)</span>: <em>"${r.comment}"</em>
+        </div>
+      `).join('');
+
+      selectedBookingState.time = ""; // Reset selección previa
+      renderTimeSlots();
+      showScreen('screen-detail');
+
+      if (!localStorage.getItem('cm_step2_seen')) {
+        showCoachMark(
+          "Tolerancia de Reserva",
+          "El predio otorga un máximo de 15 minutos de tolerancia respecto al horario de inicio reservado. De lo contrario, la cancha podrá ser reasignada.",
+          () => { localStorage.setItem('cm_step2_seen', 'true'); }
+        );
+      }
+    }
+
+    /* LÓGICA DE CAMBIO DINÁMICO DE HORARIOS SEGÚN DURACIÓN (1h vs 2h) */
+    function renderTimeSlots() {
+      const dateVal = document.getElementById('booking-date').value;
+      const duration = parseInt(document.getElementById('booking-duration').value);
+      const container = document.getElementById('time-slots-container');
+      container.innerHTML = "";
+
+      selectedBookingState.date = dateVal;
+      selectedBookingState.duration = duration;
+      selectedBookingState.totalPrice = selectedCourt.pricePerHour * duration;
+
+      document.getElementById('detail-total-price').textContent = `$${selectedBookingState.totalPrice.toLocaleString()}`;
+
+      // Generación dinámica de bloques según la duración elegida
+      let availableSlots = [];
+      if (duration === 1) {
+        // Bloques de 1 hora
+        availableSlots = [
+          "14:00 - 15:00", "15:00 - 16:00", "16:00 - 17:00", 
+          "17:00 - 18:00", "18:00 - 19:00", "19:00 - 20:00", 
+          "20:00 - 21:00", "21:00 - 22:00"
+        ];
+      } else if (duration === 2) {
+        // Bloques de 2 horas continuas
+        availableSlots = [
+          "14:00 - 16:00", "16:00 - 18:00", 
+          "18:00 - 20:00", "20:00 - 22:00"
+        ];
+      }
+
+      // Si el horario guardado no pertenece al nuevo arreglo de opciones, resetear
+      if (!availableSlots.includes(selectedBookingState.time)) {
+        selectedBookingState.time = "";
+      }
+
+      availableSlots.forEach(slotText => {
+        const slot = document.createElement('div');
+        slot.className = 'time-slot';
+        slot.textContent = slotText;
+
+        if (selectedBookingState.time === slotText) {
+          slot.classList.add('selected');
+        }
+
+        slot.onclick = () => {
+          document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+          slot.classList.add('selected');
+          selectedBookingState.time = slotText;
+        };
+
+        container.appendChild(slot);
+      });
+    }
+
+    function proceedToSummary() {
+      if (!selectedBookingState.time) {
+        alert("Por favor, seleccioná un bloque de horario disponible para continuar.");
+        return;
+      }
+
+      document.getElementById('sum-court-name').textContent = selectedCourt.name;
+      document.getElementById('sum-court-address').textContent = selectedCourt.address;
+      document.getElementById('sum-date').textContent = selectedBookingState.date;
+      document.getElementById('sum-time').textContent = selectedBookingState.time;
+      document.getElementById('sum-duration').textContent = `${selectedBookingState.duration} Hora(s) continuas`;
+      document.getElementById('sum-price').textContent = `$${selectedBookingState.totalPrice.toLocaleString()}`;
+
+      showScreen('screen-summary');
+    }
+
+    /* ------------------------------------------
+       CONFIRMACIÓN Y COMPROBANTE
+       ------------------------------------------ */
+    function confirmBooking() {
+      const accessCode = "PH-" + Math.floor(100000 + Math.random() * 900000);
+
+      const newBooking = {
+        code: accessCode,
+        courtId: selectedCourt.id,
+        courtName: selectedCourt.name,
+        courtAddress: selectedCourt.address,
+        date: selectedBookingState.date,
+        time: selectedBookingState.time,
+        duration: selectedBookingState.duration,
+        price: selectedBookingState.totalPrice,
+        createdAt: new Date().toISOString()
+      };
+
+      if (!currentUser.bookings) currentUser.bookings = [];
+      currentUser.bookings.push(newBooking);
+
+      const usersDB = JSON.parse(localStorage.getItem('padelhub_users_db') || '{}');
+      usersDB[currentUser.email] = currentUser;
+      localStorage.setItem('padelhub_users_db', JSON.stringify(usersDB));
+      localStorage.setItem('padelhub_user', JSON.stringify(currentUser));
+
+      document.getElementById('voucher-code-display').textContent = accessCode;
+      document.getElementById('conf-user').textContent = currentUser.name;
+      document.getElementById('conf-court').textContent = selectedCourt.name;
+      document.getElementById('conf-address').textContent = selectedCourt.address;
+      document.getElementById('conf-datetime').textContent = `${selectedBookingState.date} | Bloque: ${selectedBookingState.time}`;
+
+      showScreen('screen-confirmation');
+
+      if (!localStorage.getItem('cm_step3_seen')) {
+        showCoachMark(
+          "Código Único de Ingreso",
+          "¡Reserva completada! Presentá este código en la recepción del predio para habilitar la cancha asignada.",
+          () => { localStorage.setItem('cm_step3_seen', 'true'); }
+        );
+      }
+    }
+
+    /* ------------------------------------------
+       COMPARTIR
+       ------------------------------------------ */
+    function getShareText() {
+      const code = document.getElementById('voucher-code-display').textContent;
+      return `🎾 *Reserva PadelHub*\n` +
+             `Cancha: ${selectedCourt.name}\n` +
+             `Ubicación: ${selectedCourt.address}\n` +
+             `Fecha/Turno: ${selectedBookingState.date} | ${selectedBookingState.time}\n` +
+             `Código de Ingreso: *${code}*`;
+    }
+
+    function shareWhatsApp() {
+      const text = encodeURIComponent(getShareText());
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
+
+    function copyVoucherInfo() {
+      navigator.clipboard.writeText(getShareText()).then(() => {
+        alert("¡Datos de reserva copiados al portapapeles!");
+      });
+    }
+
+    /* ------------------------------------------
+       PERFIL Y HISTORIAL
+       ------------------------------------------ */
+    function showProfile() {
+      document.getElementById('profile-name').value = currentUser.name;
+      document.getElementById('profile-email').value = currentUser.email;
+      document.getElementById('profile-phone').value = currentUser.phone || "";
+
+      renderHistory();
+      showScreen('screen-profile');
+    }
+
+    function saveUserProfile(event) {
+      event.preventDefault();
+      currentUser.phone = document.getElementById('profile-phone').value;
+      
+      const usersDB = JSON.parse(localStorage.getItem('padelhub_users_db') || '{}');
+      usersDB[currentUser.email] = currentUser;
+      localStorage.setItem('padelhub_users_db', JSON.stringify(usersDB));
+      localStorage.setItem('padelhub_user', JSON.stringify(currentUser));
+
+      alert("Datos guardados con éxito.");
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('history-list-container');
+      container.innerHTML = "";
+
+      if (!currentUser.bookings || currentUser.bookings.length === 0) {
+        container.innerHTML = "<p>No tenés reservas registradas.</p>";
+        return;
+      }
+
+      currentUser.bookings.slice().reverse().forEach(b => {
+        const item = document.createElement('div');
+        item.style.cssText = "border: 2px solid var(--border-color); padding: 16px; border-radius: 8px; margin-bottom: 12px; background: #fff;";
+        item.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <strong style="font-size: 1.1rem;">${b.courtName}</strong>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 2px;">
+                Día: ${b.date} | Turno: ${b.time} (${b.duration}h)
+              </p>
+              <p style="color: var(--primary); font-weight: 800; font-size: 0.9rem; margin-top: 4px;">Código: ${b.code}</p>
+            </div>
+            <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 12px;" onclick="addCommentPrompt(${b.courtId})">💬 Opinar</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function addCommentPrompt(courtId) {
+      const court = COURTS_DATA.find(c => c.id === courtId);
+      if (!court) return;
+
+      const comment = prompt(`Escribí tu comentario sobre "${court.name}":`);
+      if (comment) {
+        court.reviews.push({
+          user: currentUser.name,
+          rating: 5,
+          comment: comment
+        });
+        alert("¡Muchas gracias! Tu opinión ya es visible en la ficha de la cancha.");
+      }
+    }
+
+    /* ------------------------------------------
+       COACH MARKS
+       ------------------------------------------ */
+    function showCoachMark(title, text, onCloseCallback) {
+      document.getElementById('coach-title').textContent = title.toUpperCase();
+      document.getElementById('coach-text').textContent = text;
+      document.getElementById('coach-mark-modal').classList.remove('hidden');
+      activeCoachMarkCallback = onCloseCallback;
+    }
+
+    function closeCoachMark() {
+      document.getElementById('coach-mark-modal').classList.add('hidden');
+      if (activeCoachMarkCallback) {
+        activeCoachMarkCallback();
+        activeCoachMarkCallback = null;
+      }
+    }
+  </script>
+</body>
+</html>
